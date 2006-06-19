@@ -55,8 +55,11 @@
  ***************************************************************************/
 /* x11win.c
  $Log$
- Revision 1.1  2006/06/19 22:05:14  todorovg
- Initial revision
+ Revision 1.2  2006/06/19 22:06:41  todorovg
+ Rasmol 2.7.3.1
+
+ Revision 1.1.1.1  2006/06/19 22:05:14  todorovg
+ Initial Rasmol 2.7.3 Import
 
  Revision 1.1  2004/05/07 19:46:16  yaya
  Initial revision
@@ -388,7 +391,8 @@ static unsigned long Ident[256];
 static int IdentCount;
 #endif
 
-static int HeldStep;
+static int XHeldButton;
+static int XHeldStep;
 
 static Byte Intensity[LutSize];
 static Pixel WhiteCol;
@@ -1769,7 +1773,7 @@ int OpenDisplay( int x, int y )
     UseHourGlass = True;
     DisableMenu = False;
     Monochrome = False;
-    HeldButton = -1;
+    XHeldButton = -1;
 
     for( i=0; i<8; i++ )
          DialValue[i] = 0.0;
@@ -2324,8 +2328,8 @@ static void DoneEvents( void )
     register Real temp;
     register int index;
 
-    if( HeldButton == YScrlDial )
-    {   index = NewScrlY+HeldStep;
+    if( XHeldButton == YScrlDial )
+    {   index = NewScrlY+XHeldStep;
 #ifdef ORIG
         if( YScrlDial < 3 )
         {   if( index<16 )             
@@ -2357,8 +2361,8 @@ static void DoneEvents( void )
         ScrlY = NewScrlY;
     }
 
-    if( HeldButton == XScrlDial )
-    {   index = NewScrlX+HeldStep;
+    if( XHeldButton == XScrlDial )
+    {   index = NewScrlX+XHeldStep;
 #ifdef ORIG
         if( XScrlDial<3 )
         {   if( index < 16 ) 
@@ -2411,7 +2415,7 @@ static int ProcessEvent(  XEvent *event )
     {   case(ButtonPress):
             {   XButtonPressedEvent *ptr;
 
-                HeldButton = -1;
+                XHeldButton = -1;
                 ptr = (XButtonPressedEvent*)event;
 
                 if( ptr->window==CanvWin )
@@ -2424,11 +2428,11 @@ static int ProcessEvent(  XEvent *event )
                 } else if( ptr->window==XScrlWin )
                 {   ReDrawFlag |= RFRotateY;
                     if( ptr->x<16 )
-                    {   HeldButton = XScrlDial;
-                        HeldStep = -XScrlSkip;
+                    {   XHeldButton = XScrlDial;
+                        XHeldStep = -XScrlSkip;
                     } else if( ptr->x>=XRange-16 )
-                    {   HeldButton = XScrlDial;
-                        HeldStep = XScrlSkip;
+                    {   XHeldButton = XScrlDial;
+                        XHeldStep = XScrlSkip;
                     } else
                     {   index = ptr->x-8;
 #ifdef ORIG
@@ -2451,11 +2455,11 @@ static int ProcessEvent(  XEvent *event )
                 } else if( ptr->window==YScrlWin )
                 {   ReDrawFlag |= RFRotateX;
                     if( ptr->y<16 )
-                    {   HeldButton = YScrlDial;
-                        HeldStep = -YScrlSkip;
+                    {   XHeldButton = YScrlDial;
+                        XHeldStep = -YScrlSkip;
                     } else if( ptr->y>=YRange-16 )
-                    {   HeldButton = YScrlDial;
-                        HeldStep = YScrlSkip;
+                    {   XHeldButton = YScrlDial;
+                        XHeldStep = YScrlSkip;
                     } else
                     {   index = ptr->y-8;
 #ifdef ORIG
@@ -2485,7 +2489,7 @@ static int ProcessEvent(  XEvent *event )
                 if( ptr->window==CanvWin )
                 {   stat = GetStatus(ptr->state);
                     ProcessMouseMove(ptr->x,ptr->y,stat);
-                } else if( HeldButton == -1 )
+                } else if( XHeldButton == -1 )
                 {   if( ptr->window==XScrlWin )
                     {   index = ptr->x-8;
                         NewScrlX = CropRange(index,16,XRange-32);
@@ -2499,9 +2503,9 @@ static int ProcessEvent(  XEvent *event )
         case(ButtonRelease):
             {   XButtonReleasedEvent *ptr;
 
-                if( HeldButton != -1 )
+                if( XHeldButton != -1 )
                 {   /* Three button emulation fix! */
-                    DoneEvents();  HeldButton = -1;
+                    DoneEvents();  XHeldButton = -1;
                 }
 
                 ptr = (XButtonReleasedEvent*)event;
@@ -2674,7 +2678,7 @@ static int HandleMenuLoop( void )
                  GrabModeAsync,GrabModeAsync,
                  None,None,CurrentTime);
 
-    HeldButton = -1;
+    XHeldButton = -1;
     MenuFocus = True;
     DrawMenuBar();
 
@@ -2815,7 +2819,7 @@ int FetchEvent( int wait )
     NewScrlX = ScrlX;
     NewScrlY = ScrlY;
 
-    if( HeldButton != -1 ) wait = False;
+    if( XHeldButton != -1 ) wait = False;
     while( XPending(dpy) || (wait && !ReDrawFlag) )
     {   XNextEvent( dpy, &event );
         result = ProcessEvent(&event);
