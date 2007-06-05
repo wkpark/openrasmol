@@ -55,6 +55,9 @@
  ***************************************************************************/
 /* x11win.c
  $Log$
+ Revision 1.3  2007/06/05 01:45:38  yaya
+ Fix for RasMol 2.7.3.1 menu click bug by G. Todorov
+
  Revision 1.2  2006/06/19 22:06:41  todorovg
  Rasmol 2.7.3.1
 
@@ -2704,7 +2707,11 @@ static int HandleMenuLoop( void )
                     if( (ptr->y>=0) && (ptr->y<=FontHigh+5) )
                     {   HandleMenuClick(ptr->x);
                     } else if( PopUpFlag )
-                    {   HandleItemClick(ptr->x,ptr->y);
+                    {         int xpos, ypos;
+                              Window win;
+                              XTranslateCoordinates(dpy,MenuWin,PopUpWin,ptr->x,ptr->y,
+                                &xpos,&ypos,&win);
+                              HandleItemClick(xpos,ypos);
                     } else done = True;
                 } break;
 
