@@ -1,10 +1,9 @@
-
 /***************************************************************************
- *                               RasMol 2.7.3                              *
+ *                               RasMol 2.7.4                              *
  *                                                                         *
  *                                 RasMol                                  *
  *                 Molecular Graphics Visualisation Tool                   *
- *                             6 February 2005                             *
+ *                            19 November 2007                             *
  *                                                                         *
  *                   Based on RasMol 2.6 by Roger Sayle                    *
  * Biomolecular Structures Group, Glaxo Wellcome Research & Development,   *
@@ -21,33 +20,44 @@
  *Philippe Valadon   RasTop 1.3     Aug 00     (C) Philippe Valadon 2000   *
  *                                                                         *
  *Herbert J.         RasMol 2.7.0   Mar 99     (C) Herbert J. Bernstein    * 
- *Bernstein          RasMol 2.7.1   Jun 99         1998-2001               *
+ *Bernstein          RasMol 2.7.1   Jun 99         1998-2007               *
  *                   RasMol 2.7.1.1 Jan 01                                 *
  *                   RasMol 2.7.2   Aug 00                                 *
  *                   RasMol 2.7.2.1 Apr 01                                 *
  *                   RasMol 2.7.2.1.1 Jan 04                               *
  *                   RasMol 2.7.3   Feb 05                                 *
+ *                   RasMol 2.7.3.1 Apr 06                                 *
+ *                   RasMol 2.7.4   Nov 07                                 *
  *                                                                         *
- *with RasMol 2.7.3 incorporating changes by Clarice Chigbo, Ricky Chachra,*
- *and Mamoru Yamanishi.  Work on RasMol 2.7.3 supported in part by         *
- *grants DBI-0203064, DBI-0315281 and EF-0312612 from the U.S. National    *
- *Science Foundation and grant DE-FG02-03ER63601 from the U.S. Department  *
- *of Energy.                                                               *
+ * RasMol 2.7.3 incorporates changes by Clarice Chigbo, Ricky Chachra,     *
+ * and Mamoru Yamanishi.  Work on RasMol 2.7.3 supported in part by        *
+ * grants DBI-0203064, DBI-0315281 and EF-0312612 from the U.S. National   *
+ * Science Foundation and grant DE-FG02-03ER63601 from the U.S. Department *
+ * of Energy.  RasMol 2.7.4 incorporates changes by G. Todorov, Nan Jia,   *
+ * N. Darakev, P. Kamburov, G. McQuillan, J. Jemilawon.  Work on RasMol    *
+ * 2.7.4 supported in part by grant 1R15GM078077-01 from the National      *
+ * Institute of General Medical Sciences (NIGMS). The content is solely    *
+ * the responsibility of the authors and does not necessarily represent    * 
+ * the official views of the funding organizations.                        *
  *                                                                         *
  *                    and Incorporating Translations by                    *
- *  Author                               Item                      Language*
+ *  Author                               Item                     Language *
  *  Isabel Servan Martinez,                                                *
- *  Jose Miguel Fernandez Fernandez      2.6   Manual              Spanish *
- *  Jose Miguel Fernandez Fernandez      2.7.1 Manual              Spanish *
- *  Fernando Gabriel Ranea               2.7.1 menus and messages  Spanish *
- *  Jean-Pierre Demailly                 2.7.1 menus and messages  French  *
+ *  Jose Miguel Fernandez Fernandez      2.6   Manual             Spanish  *
+ *  Jose Miguel Fernandez Fernandez      2.7.1 Manual             Spanish  *
+ *  Fernando Gabriel Ranea               2.7.1 menus and messages Spanish  *
+ *  Jean-Pierre Demailly                 2.7.1 menus and messages French   *
  *  Giuseppe Martini, Giovanni Paolella, 2.7.1 menus and messages          *
- *  A. Davassi, M. Masullo, C. Liotto    2.7.1 help file           Italian *
+ *  A. Davassi, M. Masullo, C. Liotto    2.7.1 help file          Italian  *
+ *  G. Pozhvanov                         2.7.3 menus and messages Russian  *
+ *  G. Todorov                           2.7.3 menus and messages Bulgarian*
+ *  Nan Jia, G. Todorov                  2.7.3 menus and messages Chinese  *
+ *  Mamoru Yamanishi, Katajima Hajime    2.7.3 menus and messages Japanese *
  *                                                                         *
  *                             This Release by                             *
- * Herbert J. Bernstein, Bernstein + Sons, P.O. Box 177, Bellport, NY, USA *
+ * Herbert J. Bernstein, Bernstein + Sons, 5 Brewster Ln, Bellport, NY, USA*
  *                       yaya@bernstein-plus-sons.com                      *
- *               Copyright(C) Herbert J. Bernstein 1998-2005               *
+ *               Copyright(C) Herbert J. Bernstein 1998-2007               *
  *                                                                         *
  *                READ THE FILE NOTICE FOR RASMOL LICENSES                 *
  *Please read the file NOTICE for important notices which apply to this    *
@@ -55,6 +65,45 @@
  ***************************************************************************/
 /* infile.c
  $Log$
+ Revision 1.3  2008/01/29 16:19:12  yaya-hjb
+ Partial update to RasMol 2.7.4.1 and post release patcges, more to come -- HJB
+
+ Revision 1.6  2008/01/29 04:12:10  yaya
+ Post release cleanup of problems discovered. -- HJB
+
+ Revision 1.5  2008/01/14 15:49:16  yaya
+ More of code for CBF style map save
+ More use of stdlib as per Ladislav Michnovic
+ --HJB
+
+ Revision 1.4  2007/11/19 03:28:39  yaya
+ Update to credits for 2.7.4 in manual and headers
+ Mask code added -- HJB
+
+ Revision 1.3  2007/11/06 04:53:52  yaya
+ Patches for window builds with CodeWarrior
+ Fix error in surface normal calculation -- HJB
+
+ Revision 1.2  2007/10/23 02:27:55  yaya
+ Preliminary mods for revised PDB format derived from Rutgers mods.
+ Partial changes for map tangles -- HJB
+
+ Revision 1.1.1.1  2007/03/01 01:16:33  todorovg
+ Chinese working versio from rasmol_ru initial import
+
+ Revision 1.3  2006/11/01 03:23:50  yaya
+ Update NSIS windows installer for more script types and to fix
+ misplaced script instructions for data files; add document and
+ script icons directly in raswin.exe; add credit line to
+ G. A. Pozhvanov in comments for Russian translations. -- HJB
+
+ Revision 1.2  2006/09/17 10:53:55  yaya
+ Clean up headers and start on code for X11 -- HJB
+
+ Revision 1.1.1.1  2006/09/16 18:45:46  yaya
+ Start of RasMol Russian Translation Project based on translations
+ by Gregory A. Pozhvanov of Saint Petersburg State University -- HJB
+
  Revision 1.2  2006/06/19 22:06:41  todorovg
  Rasmol 2.7.3.1
 
@@ -87,7 +136,19 @@
 
  */
 
+/* Ladislav Michnovic, 10 Jan 08 start */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+/* Ladislav Michnovic, 10 Jan 08 end */
+
+
 #include "rasmol.h"
+/* Ladislav Michnovic, 10 Jan 08 start */
+#include <string.h>
+/* Ladislav Michnovic, 10 Jan 08 end */
+
+
 
 #ifdef IBMPC
 #include <windows.h>
@@ -636,7 +697,8 @@ static void ProcessPDBGroup( int heta, int serno )
 }
  
 
-static void ProcessPDBAtom( int heta )
+
+static void ProcessPDBAtom( int heta, double pdb_version )
 {
     register Bond __far *bptr;
     register RAtom __far *ptr;
@@ -726,7 +788,10 @@ static void ProcessPDBAtom( int heta )
     ptr->ztrl =  (short) (10*(-dz-4*ptr->zorg));
  
     if( heta ) ptr->flag |= HeteroFlag;
-    ProcessAtom( ptr );
+    if (pdb_version < 3.)
+      ProcessAtomType( ptr, "  ");
+    else 
+      ProcessAtomType( ptr, Record+76);
  
     /* Create biopolymer Backbone */
     if( IsAlphaCarbon(ptr->refno) && IsProtein(CurGroup->refno) )
@@ -864,6 +929,7 @@ int LoadPDBMolecule( FILE *fp,  int flag )
 {
     register FeatEntry __far *ptr;
     register int ignore, notCIF;
+    double pdb_version;
  
     if (UseCIF)  return (LoadCIFMolecule (fp));
       
@@ -873,6 +939,7 @@ int LoadPDBMolecule( FILE *fp,  int flag )
     FeatList = (void __far*)0;
     DataFile = fp;
     NMRModel = 0;
+    pdb_version = 0.;
  
     while( FetchRecord(DataFile,Record) )
       { if(!notCIF) {
@@ -893,8 +960,9 @@ int LoadPDBMolecule( FILE *fp,  int flag )
 	   }          
         }
         if( *Record == 'A' )
-        {   if( !ignore && !strncmp("ATOM",Record,4) )
-                ProcessPDBAtom( False );
+        {   if( !ignore && !strncmp("ATOM",Record,4) ) {
+                ProcessPDBAtom( False, pdb_version );
+            }
 
         } else switch(*Record)
         {   case('C'):    if( !strncmp("CONE",Record,4) )
@@ -940,7 +1008,9 @@ int LoadPDBMolecule( FILE *fp,  int flag )
                           break;
 
             case('H'):    if( !strncmp("HETA",Record,4) )
-                          {   if( !ignore ) ProcessPDBAtom(True);
+                          {   if( !ignore ) {
+                                ProcessPDBAtom( True, pdb_version );
+                              }
                           } else if( !strncmp("HELI",Record,4) )
                           {   if( ignore ) continue;
  
@@ -965,6 +1035,14 @@ int LoadPDBMolecule( FILE *fp,  int flag )
                               NMRModel = (int)ReadValue(10,5);
                               flag = True;
                           break;
+
+        	case('R'):    if( !strncmp(Record, "REMARK   4", 10) 
+        	                && strcasestr(Record,"FORMAT V.")){
+        	                char * fmt;
+        	                fmt = strcasestr(Record, "FORMAT V.");
+        	                fmt += 9;
+                            sscanf(fmt, "%lf", &pdb_version);
+        	              }
  
             case('S'):    if( !strncmp("SHEE",Record,4) )
                           {   if( ignore ) break;
@@ -986,9 +1064,9 @@ int LoadPDBMolecule( FILE *fp,  int flag )
                               Info.mato2f[rownum-1][1] =  ReadDecValue(20,10);
                               Info.mato2f[rownum-1][2] =  ReadDecValue(30,10);
                               Info.veco2f[rownum-1] =  ReadDecValue(45,10);
-			      if (rownum == 3) {
+                            if (rownum == 3) {
                                 if (invxfrm(Info.mato2f,Info.veco2f,
-					    Info.matf2o,Info.vecf2o) ) {
+                                  Info.matf2o,Info.vecf2o) ) {
                                   int i, j;
 
                                   WriteString
