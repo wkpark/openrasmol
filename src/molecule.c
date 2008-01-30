@@ -65,8 +65,8 @@
  ***************************************************************************/
 /* molecule.c
  $Log$
- Revision 1.2  2008/01/29 16:19:15  yaya-hjb
- Partial update to RasMol 2.7.4.1 and post release patcges, more to come -- HJB
+ Revision 1.3  2008/01/30 03:43:59  yaya-hjb
+ More post 2.7.4.1 release cleanup -- HJB
 
  Revision 1.15  2008/01/29 04:12:11  yaya
  Post release cleanup of problems discovered. -- HJB

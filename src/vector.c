@@ -65,8 +65,8 @@
  ***************************************************************************/
 /* vector.c
  $Log$
- Revision 1.2  2008/01/29 16:19:15  yaya-hjb
- Partial update to RasMol 2.7.4.1 and post release patcges, more to come -- HJB
+ Revision 1.3  2008/01/30 03:44:00  yaya-hjb
+ More post 2.7.4.1 release cleanup -- HJB
 
  Revision 1.3  2008/01/16 21:35:11  yaya
  Change default resolution from .5 Angstrom to 1 Angstrom

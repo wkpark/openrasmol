@@ -65,8 +65,8 @@
  ***************************************************************************/
 /* command.h
  $Log$
- Revision 1.2  2008/01/29 16:19:12  yaya-hjb
- Partial update to RasMol 2.7.4.1 and post release patcges, more to come -- HJB
+ Revision 1.3  2008/01/30 03:43:59  yaya-hjb
+ More post 2.7.4.1 release cleanup -- HJB
 
  Revision 1.7  2007/12/06 18:47:09  hk0i
  added NoToggle and ColourMode commands + messages (translations needed), README for lang files, script to generate all langsel files (uses previous scripts).

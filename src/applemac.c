@@ -65,8 +65,8 @@
  ***************************************************************************/
 /* applemac.c
  $Log$
- Revision 1.2  2008/01/29 16:19:12  yaya-hjb
- Partial update to RasMol 2.7.4.1 and post release patcges, more to come -- HJB
+ Revision 1.3  2008/01/30 03:43:59  yaya-hjb
+ More post 2.7.4.1 release cleanup -- HJB
 
  Revision 1.2  2007/11/19 03:28:39  yaya
  Update to credits for 2.7.4 in manual and headers

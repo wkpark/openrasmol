@@ -65,8 +65,8 @@
  ***************************************************************************/
 /* rasmac.c
  $Log$
- Revision 1.2  2008/01/29 16:19:15  yaya-hjb
- Partial update to RasMol 2.7.4.1 and post release patcges, more to come -- HJB
+ Revision 1.3  2008/01/30 03:44:00  yaya-hjb
+ More post 2.7.4.1 release cleanup -- HJB
 
  Revision 1.6  2007/12/14 02:04:50  yaya
  Correct Chinese data for missing line in langsel_utf.c
