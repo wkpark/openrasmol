@@ -65,6 +65,9 @@
  ***************************************************************************/
 /* x11win.c
  $Log$
+ Revision 1.6  2008/02/20 17:26:10  tpikonen
+ Fix segfault on startup
+
  Revision 1.5  2008/01/30 03:44:00  yaya-hjb
  More post 2.7.4.1 release cleanup -- HJB
 
@@ -2557,6 +2560,9 @@ int OpenDisplay( int x, int y )
     }
 
     if ( RasOpenFonts() ) {
+          int isave;
+          isave = Interactive;
+          Interactive = False;
 	  if ( Language != Russian ) {
 	    SwitchLang(English);
 		if ( RasOpenFonts () ) 
@@ -2564,8 +2570,9 @@ int OpenDisplay( int x, int y )
 	  } else {
 		FatalGraphicsError("Unable to find suitable font");
 	  }
+          Interactive = isave;
     }
-
+   
     OpenColourMap();
 
     MaxHeight = DisplayHeight(dpy,num);  MinHeight = MenuHigh+101;
