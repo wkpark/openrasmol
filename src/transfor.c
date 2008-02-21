@@ -65,6 +65,9 @@
  ***************************************************************************/
 /* transfor.c
  $Log$
+ Revision 1.4  2008/02/21 15:11:46  tpikonen
+ Add GTK GUI.
+
  Revision 1.3  2008/01/30 03:44:00  yaya-hjb
  More post 2.7.4.1 release cleanup -- HJB
 
@@ -3616,7 +3619,10 @@ void ResetTransform( void )
 
     BondsSelected = (BondRot __far *)NULL;
     BondSelected = (BondRot __far *)NULL;
-
+#ifdef GTKWIN
+    if(Interactive)
+	   EnableRotBondMenu(False);
+#endif 
     CenX = CenY = CenZ = 0;
     ShiftS = 0;
     XlateCen = False;

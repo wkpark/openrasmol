@@ -65,6 +65,9 @@
  ***************************************************************************/
 /* wbrotate.c
  $Log$
+ Revision 1.4  2008/02/21 15:11:46  tpikonen
+ Add GTK GUI.
+
  Revision 1.3  2008/01/30 03:44:00  yaya-hjb
  More post 2.7.4.1 release cleanup -- HJB
 
@@ -406,6 +409,10 @@ int RemoveBond(  Long nsrc, Long ndst )
            if( BondSelected == brptr ) {
              BondSelected = brptr->brnext;
              if(!BondSelected) {
+#ifdef GTKWIN
+				if(Interactive)	
+				EnableRotBondMenu(False);
+#endif	
                WriteString("No rotation bond selected.\n");
              } else {
                WriteString("Next rotation bond selected.\n");
@@ -446,6 +453,10 @@ void ResetBondsSel( void )
    } 
    BondsSelected = (BondRot __far *)NULL;
    BondSelected = (BondRot __far *)NULL;
+#ifdef GTKWIN
+   if(Interactive)
+	   EnableRotBondMenu(False);
+#endif   
 }
 
 
@@ -567,6 +578,10 @@ void SetBondAxis( RAtom __far *src, RAtom __far *dst )
     }
     
     WriteString("Bond selected.\n");
+#ifdef GTKWIN
+	if(Interactive)
+		EnableRotBondMenu(True);
+#endif	
     brptr = BondSelected;
     BondSelected = (BondRot __far *)_fmalloc(sizeof(BondRot));
     if (brptr) {
