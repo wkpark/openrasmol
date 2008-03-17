@@ -65,6 +65,22 @@
  ***************************************************************************/
 /* multiple.c
  $Log$
+ Revision 1.5  2008/03/17 03:26:07  yaya-hjb
+ Align with RasMol 2.7.4.2 release to use cxterm to support Chinese and
+ Japanese for Linux and Mac OS X versions using rasmol_install and
+ rasmol_run scripts, and align command line options for size and
+ position of initial window. -- HJB
+
+ Revision 1.5  2008/03/17 01:32:41  yaya
+ Add gtk mods by tpikonen, and intergate with 2.7.4.2 mods -- HJB
+
+ Revision 1.4  2008/03/16 22:38:09  yaya
+ Update stable release to 2.7.4.2; Update rasmol_install and rasmol_run
+ scripts to handle Japanese and Chiness (using cxterm), changing
+ Japanese for unix back to EUCJP; and align command line options
+ to set initial window size and position to agree between unix and
+ windows -- HJB
+
  Revision 1.4  2008/02/21 15:11:46  tpikonen
  Add GTK GUI.
 
