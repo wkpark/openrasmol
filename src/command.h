@@ -71,6 +71,9 @@
  ***************************************************************************/
 /* command.h
  $Log$
+ Revision 1.7  2008/04/10 14:35:15  yaya-hjb
+ Fix load pdb bug and update rasmol_run.sh for Bulgarian. -- HJB
+
  Revision 1.6  2008/03/22 19:23:09  yaya-hjb
  Post release cleanup and add Ikonen credit for GTK to file headers. -- HJB
 
@@ -157,8 +160,8 @@
  */
 
 /* Format values are related to Tokens */
-#define Tok2Format(x) ((x)-359)
-#define Format2Tok(x) ((x)+359)
+#define Tok2Format(x) ((x)-PDBTok+1)
+#define Format2Tok(x) ((x)+PDBTok-1)
 
 #define IsMoleculeFormat(x)  ((x)<=16)
 
