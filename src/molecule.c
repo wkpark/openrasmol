@@ -71,6 +71,9 @@
  ***************************************************************************/
 /* molecule.c
  $Log$
+ Revision 1.7  2008/05/27 17:38:48  niko_bg
+ Increased AbsMaxBondDist from 600 (2.4 angstroms) to 700 (2.8 angstroms)
+
  Revision 1.6  2008/03/22 19:23:09  yaya-hjb
  Post release cleanup and add Ikonen credit for GTK to file headers. -- HJB
 
@@ -259,7 +262,7 @@
 #define MaxHBondDsq    ((Long)(MaxHBondDist*MaxHBondDist))
 #define MaxBondDsq     ((Long)(MaxBondDist*MaxBondDist))
 #define MinBondDsq     ((Long)(MinBondDist*MinBondDist))
-#define AbsMaxBondDist 600      /* 2.4 Angstroms */
+#define AbsMaxBondDist 700      /* 2.8 Angstroms */
 #define AbsMaxAtomRad  750      /* 3.0 Angstroms */
 #define AbsMaxAtomDiam AbsMaxAtomRad*2
 
