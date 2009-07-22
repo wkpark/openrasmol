@@ -1,10 +1,9 @@
 /***************************************************************************
- *                             RasMol 2.7.4.2                              *
+ *                              RasMol 2.7.5                               *
  *                                                                         *
  *                                 RasMol                                  *
  *                 Molecular Graphics Visualisation Tool                   *
- *                            19 November 2007                             *
- *                          (rev. 21 March 2008)                           *
+ *                              13 June 2009                               *
  *                                                                         *
  *                   Based on RasMol 2.6 by Roger Sayle                    *
  * Biomolecular Structures Group, Glaxo Wellcome Research & Development,   *
@@ -31,20 +30,27 @@
  *                   RasMol 2.7.4   Nov 07                                 *
  *                   RasMol 2.7.4.1 Jan 08                                 *
  *                   RasMol 2.7.4.2 Mar 08                                 *
+ *                   RasMol 2.7.5   May 09                                 *
  *                                                                         *
- * RasMol 2.7.3 incorporates changes by Clarice Chigbo, Ricky Chachra,     *
- * and Mamoru Yamanishi.  Work on RasMol 2.7.3 supported in part by        *
- * grants DBI-0203064, DBI-0315281 and EF-0312612 from the U.S. National   *
- * Science Foundation and grant DE-FG02-03ER63601 from the U.S. Department *
- * of Energy.  RasMol 2.7.4 incorporates changes by G. Todorov, Nan Jia,   *
- * N. Darakev, P. Kamburov, G. McQuillan, J. Jemilawon.  Work on RasMol    *
- * 2.7.4 supported in part by grant 1R15GM078077-01 from the National      *
- * Institute of General Medical Sciences (NIGMS). The content is solely    *
- * the responsibility of the authors and does not necessarily represent    * 
- * the official views of the funding organizations.                        *
+ * RasMol 2.7.5 incorporates changes by T. Ikonen, G. McQuillan, N. Darakev*
+ * and L. Andrews (via the neartree package).  Work on RasMol 2.7.5        *
+ * supported in part by grant 1R15GM078077-01 from the National Institute  *
+ * of General Medical Sciences (NIGMS), U.S. National Institutes of Health *
+ * and by grant ER63601-1021466-0009501 from the Office of Biological &    *
+ * Environmental Research (BER), Office of Science, U. S. Department of    *
+ * Energy.  RasMol 2.7.4 incorporated  changes by G. Todorov, Nan Jia,     *
+ * N. Darakev, P. Kamburov, G. McQuillan, and J. Jemilawon. Work on RasMol *
+ * 2.7.4 supported in part by grant 1R15GM078077-01 from the NIGMS/NIH and *
+ * grant ER63601-1021466-0009501 from BER/DOE.  RasMol 2.7.3 incorporates  *
+ * changes by Clarice Chigbo, Ricky Chachra, and Mamoru Yamanishi.  Work   *
+ * on RasMol 2.7.3 supported in part by grants DBI-0203064, DBI-0315281    *
+ * and EF-0312612 from the U.S. National Science Foundation and grant      *
+ * DE-FG02-03ER63601 from BER/DOE. The content is solely the responsibility*
+ * of the authors and does not necessarily represent the official views of *
+ * the funding organizations.                                              *
  *                                                                         *
- * The code for use of RasMol under GTK in RasMol 2.7.4.2 was written by   *
- * Teemu  Ikonen.                                                          *
+ * The code for use of RasMol under GTK in RasMol 2.7.4.2 and 2.7.5 was    *
+ * written by Teemu Ikonen.                                                *
  *                                                                         *
  *                    and Incorporating Translations by                    *
  *  Author                               Item                     Language *
@@ -71,20 +77,17 @@
  ***************************************************************************/
 /* rasmol.c
  $Log$
- Revision 1.7  2008/03/22 19:23:10  yaya-hjb
- Post release cleanup and add Ikonen credit for GTK to file headers. -- HJB
+ Revision 1.8  2009/07/22 18:43:08  yaya-hjb
+ RasMol 2.7.5 Update -- HJB
 
- Revision 1.6  2008/03/21 19:49:05  yaya-hjb
- Update documentation and comments -- HJB
-
- Revision 1.5  2008/03/17 03:26:07  yaya-hjb
- Align with RasMol 2.7.4.2 release to use cxterm to support Chinese and
- Japanese for Linux and Mac OS X versions using rasmol_install and
- rasmol_run scripts, and align command line options for size and
- position of initial window. -- HJB
+ Revision 1.5  2008/03/22 18:42:54  yaya
+ Post release cleanup and credit to Ikonen in file headers. -- HJB
 
  Revision 1.4  2008/03/17 03:01:31  yaya
  Update to agree with 2.7.4.2 release and T. Ikonen GTK mods -- HJB
+
+ Revision 1.4  2008/03/17 01:32:41  yaya
+ Add gtk mods by tpikonen, and intergate with 2.7.4.2 mods -- HJB
 
  Revision 1.3  2008/03/16 22:38:09  yaya
  Update stable release to 2.7.4.2; Update rasmol_install and rasmol_run
@@ -230,11 +233,14 @@
 #include "wbrotate.h"
 #include "langsel.h"
 #include "script.h"
-
+#include "tokens.h"
 
 #ifdef GTKWIN
+#include "gtkwin.h"
+#include <gtk/gtk.h>
 extern char filaid[];
 extern char fillang[];
+int initial_ui_elements = UI_MENUS;
 #endif
 
 #ifdef esv
@@ -301,12 +307,8 @@ static char fpnamebuf[1048];
 #define IsIdentChar(x)  ((isalnum(x))||((x)=='_')||((x)=='$'))
 #define TwoPi           2.0*PI
 
-#ifdef GTKWIN
-FILE *OutFp;
-#else
 /* Either stdout or stderr */
 #define OutFp stdout
-#endif
 
 #ifdef VMS
 static struct {
@@ -386,7 +388,7 @@ static int SocketNo;
 
 static int firstpass=1;
 
-static char *FileNamePtr;
+static char *FileNamePtrs[MAX_MOLECULES];
 static char *ScriptNamePtr;
 static int FileFormat;
 static int ProfCount;
@@ -401,14 +403,16 @@ static int LexState;
 static int HandleEvents( int );
 extern int ProcessCommand( void );
 
-
+#ifndef GTKWIN
 void WriteChar( int ch )
-{   putc(ch,OutFp);
+{
+    putc(ch,OutFp);
 }
 
 
 void WriteString( char *ptr )
-{   fputs(ptr,OutFp);
+{
+    fputs(ptr,OutFp);
 }
 
 
@@ -471,6 +475,7 @@ void RasMolFatalExit( char *msg )
     ResetTerminal();
     exit(1);
 }
+#endif /* GTKWIN */
 
 
 #ifdef VMS
@@ -701,6 +706,7 @@ static void HandleSocketData( int conv )
 
 static void InitTerminal( int sockets )
 {
+#ifndef GTKWIN
 #ifdef TERMIOS
     register int i;
 #endif
@@ -713,9 +719,7 @@ static void InitTerminal( int sockets )
 #endif
 
 #ifdef TERMIOS
-#ifndef GTKWIN
     FileNo = fileno(stdin);
-#endif
     FD_ZERO(&OrigWaitSet);
     FD_SET(FileNo,&OrigWaitSet);
     WaitWidth = FileNo+1;
@@ -789,6 +793,7 @@ static void InitTerminal( int sockets )
 #else /* !VMS */
     setbuf(stdin,(char*)NULL);
 #endif
+#endif //GTKWIN
 }
 
 
@@ -1087,7 +1092,7 @@ static void CreateNewFolder(void * name)
 
 	parent = (char *)fl_get_directory();
 	len = strlen(parent) + MAX_PATH_LEN;
-	dir = malloc(len);
+	dir = _fmalloc(len);
 	if (dir == NULL) {
 		fl_show_alert("ERROR:", "NO memory", "", 0);
 		return;
@@ -1099,7 +1104,7 @@ static void CreateNewFolder(void * name)
 
 	if (mkdir(dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH))
 		fl_show_alert("Cannot create", dir, "", 0);
-	free(dir);
+	_ffree(dir);
 	fl_refresh_fselector();
 }
 #endif
@@ -1820,10 +1825,12 @@ void HandleMenu( int hand )
 
 void RefreshScreen( void )
 {
+    int ReDrawFlagSave;
     if( !UseSlabPlane )
     {   ReDrawFlag &= ~RFTransZ|RFSlab;
     } else ReDrawFlag &= ~RFTransZ;
 
+    ReDrawFlagSave = ReDrawFlag;
     if( ReDrawFlag )
     {   if( ReDrawFlag & RFReSize )
             ReSizeScreen();
@@ -1833,9 +1840,10 @@ void RefreshScreen( void )
                 ClearImage();
             DefineColourMap();
         }
-
-        if( Database )
-        {   if( Interactive )
+        
+          NextReDrawFlag = 0;
+          if( Database )
+          {   if( Interactive )
                 BeginWait();
             if( ReDrawFlag & RFApply ) 
                 ApplyTransform();
@@ -1844,11 +1852,24 @@ void RefreshScreen( void )
             {   TransferImage();
                 EndWait();
             }
-        } else if( Interactive )
-        {   ClearBuffers();
+          } else if( Interactive )
+          {   ClearBuffers();
             TransferImage();
-        }
-        ReDrawFlag = 0;
+          }
+	  if ((ReDrawFlagSave & RFApply) && record_on[0] && !RecordPause) {
+	      WriteMovieFrame();
+	      record_frame[0]++;
+	      record_frame[1] = 0;
+	  } else if ((ReDrawFlagSave & RFAppear) && record_on[1] && !RecordPause) {
+	      WriteMovieFrame();
+	      record_frame[0]++;
+	      record_frame[1]++;
+	      if ((double)(record_frame[1]) <= record_fps*record_dwell) {
+	        NextReDrawFlag |= RFRefresh;
+	      } else {
+	      	record_frame[1] = 0;
+	      }
+	  } 
     }
 }
 
@@ -2001,11 +2022,15 @@ static int HandleEvents( int wait )
 {
     register int result;
 
+    NextReDrawFlag = 0;
     result = FetchEvent( wait );
     while( ReDrawFlag || result )
     {   if( !result )
-        {   if( ReDrawFlag )
-                RefreshScreen();
+        {   if( ReDrawFlag )  {
+              RefreshScreen();
+              ReDrawFlag = NextReDrawFlag;
+            }
+                
         } else if( !IsPaused )
             HandleMenu( result );
         result = FetchEvent( False );
@@ -2065,8 +2090,11 @@ static void ProfileExecution( void )
 static void InitDefaultValues( void )
 {
     Interactive = True;
+    int i;
 
-    FileNamePtr = NULL;
+    for(i = 0; i < MAX_MOLECULES; i++) {
+        FileNamePtrs[i]= NULL;
+    }
     ScriptNamePtr = NULL;
     InitWidth = InitHeight = InitXPos = InitYPos = 0;
     ProfCount = 0;
@@ -2076,23 +2104,26 @@ static void InitDefaultValues( void )
     LabelOptFlag = False;
     FileFormat = FormatPDB;
     AllowWrite = False;
-
+#ifdef GRAPHICS
+    RepDefault = REP_WIREFRAME;
+    ColDefault = CPKTok;
+#endif
 #ifdef SOCKETS
     ServerPort = 21069;
 #endif
 }
 
 
-static void DisplayUsage( void )
+static void DisplayUsage(int retval)
 {
-    fputs("usage: rasmol [-nodisplay] [-script scriptfile] ",OutFp);
-    fputs("[[-format] file]\n    formats: -cif -pdb -nmrpdb ",OutFp);
-    fputs("-mopac -mdl -mol2 -xyz -alchemy -charmm\n\n",OutFp);
-    exit(1);
+    fputs("usage: rasmol [-nodisplay] [-script scriptfile] ", OutFp);
+    fputs("[[-format] file]\n    formats: -cif -pdb -nmrpdb ", OutFp);
+    fputs("-mopac -mdl -mol2 -xyz -alchemy -charmm\n\n", OutFp);
+    exit(retval);
 }
 
 
-#define FORMATOPTMAX   15
+#define FORMATOPTMAX   17
 static struct {
         char *ident;
         int format;
@@ -2107,8 +2138,10 @@ static struct {
             { "mdl",        FormatMDL      },
             { "mmdb",       FormatMMDB     },
             { "mol2",       FormatMol2     },
+            { "sybyl",      FormatMol2     },
             { "mopac",      FormatMOPAC    },
             { "nmrpdb",     FormatNMRPDB   },
+            { "pdbnmr",     FormatNMRPDB   },
             { "pdb",        FormatPDB      },
             { "shelx",      FormatSHELX    },
             { "xyz",        FormatXYZ      }
@@ -2117,105 +2150,170 @@ static struct {
 static void ProcessOptions( int argc, char *argv[] )
 {
     register char *ptr;
-    register int i,j,argok;
+    register int i, j, argok, nfiles;
     register language klang;
 
+    nfiles = 0;
     for( i=1; i<argc; i++ )
     {   ptr = argv[i];
 #ifdef VMS
-        if( (*ptr=='/') || (*ptr=='-') )
+        if( (*ptr=='/') || (*ptr=='-') ) {
 #else
-        if( (*ptr=='-') && ptr[1] )
+        if( (*ptr=='-') && ptr[1] ) {
 #endif
-        {   ptr++;
-        
-            if (*ptr=='-') {
-            
-              argok = False;
-              for (klang=(language)0; klang < NUMLANGS; klang++) {
-            
-                if (!strcasecmp(ptr+1,lang2str(klang))) {
-                  Language = klang;
-                  argok = True; break;	
-                }
-              }
-              if (argok) continue;
-            }
+            ptr++;
+            if (*ptr=='-')
+                ptr++;
 
-            if( !strcasecmp(ptr,"nodisplay") )
-            {   Interactive = False;
+            if (!strcasecmp(ptr, "nodisplay")) {
+                Interactive = False;
 #ifdef PROFILE
-            } else if( !strcasecmp(ptr,"prof") ||
-                       !strcasecmp(ptr,"profile") )
-            {   ProfCount = 200;
+            } else if (!strcasecmp(ptr, "prof") || !strcasecmp(ptr, "profile")) {
+                ProfCount = 200;
 #endif
-            } else if( !strcasecmp(ptr,"noconnect") )
-            {   CalcBondsFlag = False;
-            } else if( !strcasecmp(ptr,"connect") )
-            {   CalcBondsFlag = True;
-            } else if( !strcasecmp(ptr,"insecure") )
-            {   AllowWrite = True;
-            } else if( !strcasecmp(ptr,"secure") )
-            {   AllowWrite = False;
-
-            } else if( !strcasecmp(ptr,"script") )
-            {   if( i == argc-1 ) DisplayUsage();
+            } else if (!strcasecmp(ptr, "help")) {
+                DisplayUsage(0);
+            } else if (!strcasecmp(ptr, "version")) {
+                fprintf (OutFp, "%s\nVersion %s %s\n%s\n",
+                        MAIN_COPYRIGHT, VERSION,
+                        VER_DATE, VER_COPYRIGHT);
+            } else if (!strcasecmp(ptr, "noconnect")) {
+                CalcBondsFlag = False;
+            } else if (!strcasecmp(ptr, "connect")) {
+                CalcBondsFlag = True;
+            } else if (!strcasecmp(ptr, "insecure")) {
+                AllowWrite = True;
+            } else if (!strcasecmp(ptr, "secure")) {
+                AllowWrite = False;
+            } else if (!strcasecmp(ptr, "script")) {
+                if (i == argc - 1)
+                    DisplayUsage(1);
                 ScriptNamePtr = argv[++i];
-            } else if( !strcasecmp(ptr,"width") ||
-                       !strcasecmp(ptr,"wide") )
-            {   if( i == argc-1 ) DisplayUsage();
+            } else if (!strcasecmp(ptr, "wireframe")) {
+                RepDefault = REP_WIREFRAME;
+            } else if (!strcasecmp(ptr, "backbone")) {
+                RepDefault = REP_BACKBONE;
+            } else if (!strcasecmp(ptr, "sticks")) {
+                RepDefault = REP_STICKS;
+            } else if (!strcasecmp(ptr, "spacefill")) {
+                RepDefault = REP_SPHERES;
+            } else if (!strcasecmp(ptr, "spheres")) {
+                RepDefault = REP_SPHERES;
+            } else if (!strcasecmp(ptr, "ballstick")) {
+                RepDefault = REP_BALLSTICK;
+            } else if (!strcasecmp(ptr, "ribbons")) {
+                RepDefault = REP_RIBBONS;
+            } else if (!strcasecmp(ptr, "strands")) {
+                RepDefault = REP_STRANDS;
+            } else if (!strcasecmp(ptr, "cartoons")) {
+                RepDefault = REP_CARTOONS;
+            } else if (!strcasecmp(ptr, "color") || !strcasecmp(ptr, "colour")) {
+                char *p;
+                if (i == (argc - 1))
+                    DisplayUsage(1);
+                p = argv[++i];
+                if(!strcasecmp(p, "monochrome")) {
+                    ColDefault = WhiteTok;
+                } else if(!strcasecmp(p, "alt")) {
+                    ColDefault = AltlTok;
+                } else if(!strcasecmp(p, "amino")) {
+                    ColDefault = AminoTok;
+                } else if(!strcasecmp(p, "chain")) {
+                    ColDefault = ChainTok;
+                } else if(!strcasecmp(p, "charge")) {
+                    ColDefault = ChargeTok;
+                } else if(!strcasecmp(p, "cpk")) {
+                    ColDefault = CPKTok;
+                } else if(!strcasecmp(p, "cpknew")) {
+                    ColDefault = CpkNewTok;
+                } else if(!strcasecmp(p, "group")) {
+                    ColDefault = GroupTok;
+                } else if(!strcasecmp(p, "model")) {
+                    ColDefault = ModelTok;
+                } else if(!strcasecmp(p, "shapely")) {
+                    ColDefault = ShapelyTok;
+                } else if(!strcasecmp(p, "structure")) {
+                    ColDefault = StructureTok;
+                } else if(!strcasecmp(p, "temperature")) {
+                    ColDefault = TemperatureTok;
+                } else if(!strcasecmp(p, "user")) {
+                    ColDefault = UserTok;
+                } else {
+                    fprintf(OutFp, "Unknown colour definition\n");
+                }
+#ifdef GTKWIN
+            } else if (!strcasecmp(ptr, "prompt")) {
+                initial_ui_elements |= UI_COMMAND;
+            } else if (!strcasecmp(ptr, "noprompt")) {
+                initial_ui_elements &= ~UI_COMMAND;
+            } else if (!strcasecmp(ptr, "scrollbars")) {
+                initial_ui_elements |= UI_SCROLLS;
+            } else if (!strcasecmp(ptr, "noscrollbars")) {
+                initial_ui_elements &= ~UI_SCROLLS;
+            } else if (!strcasecmp(ptr, "menu")) {
+                initial_ui_elements |= UI_MENUS;
+            } else if (!strcasecmp(ptr, "nomenu")) {
+                initial_ui_elements &= ~UI_MENUS;
+            } else if (!strcasecmp(ptr, "fullscreen")) {
+                initial_ui_elements |= UI_FULLSCREEN;
+#endif /* GTKWIN */
+            } else if (!strcasecmp(ptr, "width") || !strcasecmp(ptr, "wide")) {
+                if (i == argc - 1)
+                    DisplayUsage(1);
                 InitWidth = atoi(argv[++i]);
-                if( InitWidth < 48 )
-                {   InitWidth = 48;
-                } else if( (j = InitWidth%4) )
-                    InitWidth += 4-j;
-
-            } else if( !strcasecmp(ptr,"height") ||
-                       !strcasecmp(ptr,"high") )
-            {   if( i == argc-1 ) DisplayUsage();
+                if (InitWidth < 48) {
+                    InitWidth = 48;
+                } else if ((j = InitWidth % 4))
+                    InitWidth += 4 - j;
+            } else if (!strcasecmp(ptr, "height") || !strcasecmp(ptr, "high")) {
+                if (i == argc - 1)
+                    DisplayUsage(1);
                 InitHeight = atoi(argv[++i]);
-                if( InitHeight < 48 )
+                if (InitHeight < 48)
                     InitHeight = 48;
-                
-            } else if( !strcasecmp(ptr,"xpos"))
-            {   if( i == argc-1 ) DisplayUsage();
+            } else if (!strcasecmp(ptr, "xpos")) {
+                if (i == argc - 1)
+                    DisplayUsage(1);
                 InitXPos = atoi(argv[++i]);
-            } else if( !strcasecmp(ptr,"ypos"))
-            {   if( i == argc-1 ) DisplayUsage();
+            } else if (!strcasecmp(ptr, "ypos")) {
+                if (i == argc - 1)
+                    DisplayUsage(1);
                 InitYPos = atoi(argv[++i]);
-                
-
 #ifdef SOCKETS
-            } else if( !strcasecmp(ptr,"port") )
-            {   if( i == argc-1 ) DisplayUsage();
+            } else if (!strcasecmp(ptr, "port")) {
+                if (i == argc - 1)
+                    DisplayUsage(1);
                 ServerPort = atoi(argv[++i]);
 #endif
-
-            } else if( !strcasecmp(ptr,"sybyl") )
-            {   FileFormat = FormatMol2;
-            } else if( !strcasecmp(ptr,"pdbnmr") )
-            {   FileFormat = FormatNMRPDB;
-            } else if( !strcasecmp(ptr,"cif") )
-            {  FileFormat = FormatCIF;
 #ifdef CEXIOLIB
-            } else if( !strcasecmp(ptr,"cex") )
-            {   FileFormat = FormatCEX;
+            } else if (!strcasecmp(ptr, "cex")) {
+                FileFormat = FormatCEX;
 #endif
 
-            } else  /* File Formats! */
-            {   for( j=0; j<FORMATOPTMAX; j++ )
-                    if( !strcasecmp(ptr,FormatOpt[j].ident) )
-                    {   FileFormat = FormatOpt[j].format;
+            } else {
+                argok = False;
+                /* Languages */
+                for (klang=(language)0; klang < NUMLANGS; klang++) {
+                    if (!strcasecmp(ptr+1,lang2str(klang))) {
+                        Language = klang;
+                        argok = True;
                         break;
                     }
-
+                }
+                if (argok) continue;
+                /* File Formats! */
+                for( j=0; j<FORMATOPTMAX; j++ )
+                    if( !strcasecmp(ptr,FormatOpt[j].ident) ) {
+                        FileFormat = FormatOpt[j].format;
+                        break;
+                    }
                 if( j==FORMATOPTMAX )
-                    DisplayUsage();
+                    DisplayUsage(1);
             }
         } else
-            if( !FileNamePtr )
-            {   FileNamePtr = ptr;
-            } else DisplayUsage();
+            if( nfiles < MAX_MOLECULES )
+            {   FileNamePtrs[nfiles++] = ptr;
+            } else DisplayUsage(1);
     }
 }
 
@@ -2223,12 +2321,14 @@ static void ProcessOptions( int argc, char *argv[] )
 static void InitialiseFSDialogs(void)
 {
     FD_FSELECTOR *fs;
+    int dummycount=1;
+    char * dummyargv="rasmol";
 
     if ( ! Interactive )
 	return;
 
 /*  fl_initialize(&argc, argv, VersionStr, 0, 0);  */
-    fl_init();
+    fl_initialize(&dummycount,&dummyargv,dummyargv,0,0);
 
     /* Open File Dialog */
     fl_use_fselector(XFORMS_OPENDIALOG);
@@ -2307,6 +2407,7 @@ int main( int argc, char *argv[] )
     register int done;
     register char ch;
     static char VersionStr[255];
+    int i, read_from_stdin;
   
     Interactive = False;
 	TermLanguage = English;
@@ -2331,7 +2432,9 @@ int main( int argc, char *argv[] )
 #endif
     Interactive = OpenDisplay();
     InitTerminal(Interactive);
-
+#ifdef GTKWIN
+    set_ui_elements(initial_ui_elements);
+#endif
     SwitchLang (Language);
  
     signal(SIGINT,RasMolSignalExit);
@@ -2379,11 +2482,13 @@ int main( int argc, char *argv[] )
 
 #ifdef PROFILE
     if( ProfCount )
-    {   if( FileNamePtr )
-        {   strcpy(DataFileName,FileNamePtr);
+    {
+      /* Only use the first filename arg when profiling */
+      if( FileNamePtrs[0] )
+        {   strcpy(DataFileName,FileNamePtrs[0]);
 
-            if( strcmp(FileNamePtr,"-") )
-            {   done = FetchFile(FileFormat,True,FileNamePtr);
+            if( strcmp(FileNamePtrs[0],"-") )
+            {   done = FetchFile(FileFormat,True,FileNamePtrs[0]);
             } else done = ProcessFile(FileFormat,True,stdin);
             if( !done )
                 RasMolFatalExit("Profile Error: Unable to read data file!");
@@ -2399,29 +2504,49 @@ int main( int argc, char *argv[] )
         SetRibbonCartoons();
         EnableWireframe(WireFlag,0,0);
         RefreshScreen();
+        ReDrawFlag = NextReDrawFlag;
 
         /* Avoid Pending Events */
         if( Interactive ) 
         {   FetchEvent(False);
-            if( ReDrawFlag )
-                RefreshScreen();
+            if( ReDrawFlag ) {
+            	RefreshScreen();
+                ReDrawFlag = NextReDrawFlag;
+            }
+                
         }
         ProfileExecution();
         RasMolExit();
     }
 #endif
 
-    if( FileNamePtr )
-    {   strcpy(DataFileName,FileNamePtr);
+    i = 0;
+    read_from_stdin = False;
+    while( i < MAX_MOLECULES && FileNamePtrs[i] )
+    {   strcpy(DataFileName,FileNamePtrs[i]);
 
-        if( !strcmp(FileNamePtr,"-") )
-        {   done = ProcessFile(FileFormat,True,stdin);
-        } else done = FetchFile(FileFormat,True,FileNamePtr);
+        if( !strcmp(FileNamePtrs[i],"-") ) {
+            done = FetchStdin(FileFormat);
+            read_from_stdin = True;
+        } else
+            done = FetchFile(FileFormat,True,FileNamePtrs[i]);
 
         if( done )
-        {   DefaultRepresentation();
+        {
+#ifdef GTKWIN
+            char tmp[PATH_MAX+10];
+
+            strcpy(tmp, "file://");
+            if(realpath(FileNamePtrs[i], tmp+7)) {
+                gtk_recent_manager_add_item(gtk_recent_manager_get_default(),
+                                            tmp);
+            }
+#endif // GTKWIN
+            DefaultRepresentation();
             RefreshScreen();
+            ReDrawFlag = NextReDrawFlag;
         }
+        i++;
     }
 
     LexState = 0;
@@ -2434,7 +2559,7 @@ int main( int argc, char *argv[] )
         } else LoadScriptFile(fp,ScriptNamePtr);
     }
 
-    if( FileNamePtr && !strcmp(FileNamePtr,"-") )
+    if( read_from_stdin )
     {   /* Finished Processing after stdin? */
 #ifdef TERMIOS
         if( Interactive )
@@ -2459,6 +2584,7 @@ int main( int argc, char *argv[] )
             if( ProcessCharacter(ch) )
             {   if( !ProcessCommand() )
                 {   RefreshScreen();
+                    ReDrawFlag = NextReDrawFlag;
                 } else done = True;
             }
         }
@@ -2482,6 +2608,7 @@ int main( int argc, char *argv[] )
         if( ProcessCharacter(ch) )
         {   if( !ProcessCommand() )
             {   RefreshScreen();
+                ReDrawFlag = NextReDrawFlag;
             } else done = True;
         }
     }
@@ -2501,12 +2628,13 @@ int main( int argc, char *argv[] )
             if( ProcessCharacter(ch) )
             {   if( !ProcessCommand() )
                 {   RefreshScreen();
+                    ReDrawFlag = NextReDrawFag;
                 } else done = True;
             }
         }
     }
 #endif /* TERMIOS */
-#endif /* GTKWIN */
     RasMolExit();
+#endif /* GTKWIN */
     return 0;
 }
